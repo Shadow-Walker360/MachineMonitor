@@ -1,39 +1,20 @@
 import psutil
+from backend.database import log_ai
 
-def scan_active_connections():
-    """
-    Returns a list of active network connections
-    Each connection includes: local_address, remote_address, status, pid
-    """
-    conns = []
-    for conn in psutil.net_connections():
-        conns.append({
-            "local_address": f"{conn.laddr.ip}:{conn.laddr.port}" if conn.laddr else None,
-            "remote_address": f"{conn.raddr.ip}:{conn.raddr.port}" if conn.raddr else None,
-            "status": conn.status,
-            "pid": conn.pid
+def scan_network_connections():
+    connections = []
+    for conn in psutil.net_connections(kind='inet'):
+        connections.append({
+            "fd": conn.fd,
+            "type": str(conn.type),
+            "local": str(conn.laddr),
+            "remote": str(conn.raddr) if conn.raddr else "",
+            "status": conn.status
         })
-    return conns
+    return connections
 
-def get_top_bandwidth_processes(n=5):
-    """
-    Returns top n processes by network I/O (bytes sent + received)
-    """
-    net_stats = []
-    for p in psutil.process_iter(['pid', 'name']):
-        try:
-            io = p.io_counters()
-            net_stats.append({
-                "pid": p.info['pid'],
-                "name": p.info['name'],
-                "read_bytes": io.read_bytes,
-                "write_bytes": io.write_bytes
-            })
-        except Exception:
-            continue
-    net_stats.sort(key=lambda x: x['read_bytes'] + x['write_bytes'], reverse=True)
-    return net_stats[:n]
-
-if __name__ == "__main__":
-    print(scan_active_connections())
-    print(get_top_bandwidth_processes())
+def get_network_usage():
+    net = psutil.net_io_counters()
+    usage = {"bytes_sent": net.bytes_sent, "bytes_recv": net.bytes_recv}
+    log_ai({"network_usage": usage})
+    return usage

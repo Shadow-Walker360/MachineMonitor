@@ -1,4 +1,9 @@
-from frontend.dashboard import start_dashboard
+from frontend.dashboard import dashboard
+from PyQt5.QtWidgets import QApplication
+import sys
 
 if __name__ == "__main__":
-    start_dashboard()
+    app = QApplication(sys.argv)
+    dashboard = dashboard()
+    dashboard.show()
+    sys.exit(app.exec_())

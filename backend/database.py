@@ -1,8 +1,7 @@
 from pymongo import MongoClient
 from datetime import datetime
-import os
 
-# Local MongoDB URI
+# MongoDB setup
 MONGO_URI = "mongodb://localhost:27017"
 DB_NAME = "machine_monitor"
 
@@ -36,4 +35,4 @@ def log_ai_analysis(analysis, predictions, optimizations, threats, report):
     ai_collection.insert_one(doc)
 
 if __name__ == "__main__":
-    print("MongoDB setup done.")
+    print("MongoDB setup complete.")
